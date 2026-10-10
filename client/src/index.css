@@ -3,13 +3,26 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: #123d35;
-  background: #f8fbfa;
+  background-color: #f8fbfa;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* ToothLink Design System Tokens */
+  --tooth-50: #eefbf7;
+  --tooth-100: #d5f5eb;
+  --tooth-200: #b0ebd9;
+  --tooth-500: #13a886;
+  --tooth-600: #0b8b70;
+  --tooth-700: #08715c;
+  --tooth-800: #0e5446;
+  --tooth-900: #123d35;
+  --tooth-950: #09241f;
+  --tooth-bg: #f8fbfa;
+  --tooth-surface: #ffffff;
 }
 
 * {
@@ -20,6 +33,17 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  color: var(--tooth-900);
+  background-color: var(--tooth-bg);
+}
+
+/* Accessibility Focus Ring Utility */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid #0b8b70;
+  outline-offset: 2px;
 }
 
 button,
@@ -32,4 +56,15 @@ textarea {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
