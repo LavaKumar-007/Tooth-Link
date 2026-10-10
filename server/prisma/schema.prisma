@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  CLINIC
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         UserRole
+  status       UserStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  student       Student?
+  clinic        Clinic?
+  notifications Notification[]
+}
+
+model Student {
+  id                   Int                @id @default(autoincrement())
+  userId               Int                @unique
+  institution          String
+  studentId            String
+  location             String
+  verificationStatus   VerificationStatus @default(PENDING)
+  verificationDocument String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requirements Requirement[]
+  requests     Request[]
+
+  @@unique([institution, studentId])
+}
+
+model Clinic {
+  id                   Int                @id @default(autoincrement())
+  userId               Int                @unique
+  clinicName           String
+  doctorName           String
+  location             String
+  verificationStatus   VerificationStatus @default(PENDING)
+  verificationDocument String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inventories Inventory[]
+  requests    Request[]
+}
+
+enum ToothType {
+  INCISOR
+  CANINE
+  PREMOLAR
+  MOLAR
+}
+
+enum Arch {
+  MAXILLARY
+  MANDIBULAR
+  BOTH
+}
+
+enum InventoryStatus {
+  AVAILABLE
+  UNAVAILABLE
+  EXPIRED
+}
+
+model Inventory {
+  id             Int             @id @default(autoincrement())
+  clinicId       Int
+  toothType      ToothType
+  specificTooth  String?
+  arch           Arch
+  condition      String?
+  quantity       Int
+  location       String
+  availableFrom  DateTime?
+  availableUntil DateTime?
+  status         InventoryStatus @default(AVAILABLE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  clinic   Clinic    @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  requests Request[]
+}
+
+enum RequirementStatus {
+  WAITING
+  MATCH_FOUND
+  REQUESTED
+  FULFILLED
+  CANCELLED
+}
+
+model Requirement {
+  id            Int               @id @default(autoincrement())
+  studentId     Int
+  toothType     ToothType
+  specificTooth String?
+  arch          Arch
+  condition     String?
+  quantity      Int
+  location      String
+  requiredBy    DateTime?
+  status        RequirementStatus @default(WAITING)
+  notifyEnabled Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  student  Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  requests Request[]
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  FULFILLED
+  CANCELLED
+}
+
+model Request {
+  id            Int           @id @default(autoincrement())
+  requirementId Int
+  studentId     Int
+  clinicId      Int
+  inventoryId   Int
+  quantity      Int
+  status        RequestStatus @default(PENDING)
+  requestedAt   DateTime      @default(now())
+  respondedAt   DateTime?
+  fulfilledAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  requirement Requirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  clinic      Clinic      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  inventory   Inventory   @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  requirementId Int?
+  type          String
+  title         String
+  message       String
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

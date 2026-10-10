@@ -1,0 +1,17 @@
+function App() {
+  return (
+    <div className="min-h-screen bg-[#F8F5EF] flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-5xl font-bold text-[#271A3D]">
+          ToothLink
+        </h1>
+
+        <p className="mt-4 text-lg text-gray-600">
+          The teeth exist. The connection doesn't.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+export default App
